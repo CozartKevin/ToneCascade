@@ -2,7 +2,7 @@
 *Real-Time Audio Visualizer (Early Development)*  
 
 🚧 **Project Status**: Active development  
-📅 **Last Updated**: $(date +%Y-%m-%d)  
+📅 **Last Updated**: 7/5/2025
 
 ## Goals  
 - [ ] Implement JUCE audio pipeline  
