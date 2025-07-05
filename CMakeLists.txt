@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.15)  # JUCE requires CMake 3.15+
-project(ToneCascade LANGUAGES CXX)    # C++ project
+cmake_minimum_required(VERSION 3.22)  # JUCE requires CMake 3.15+
+project(ToneCascade LANGUAGES C CXX)    # C++ project
 
 # Find JUCE (assumes JUCE is installed or a submodule)
 find_package(JUCE CONFIG REQUIRED)
