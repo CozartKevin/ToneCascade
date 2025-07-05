@@ -50,6 +50,8 @@ OpenACC (GPU)	3.1	240
 
 
 ### Project Structure
+
+```
 ToneCascade/
 ├── src/               # Core application code
 │   ├── audio/         # JUCE audio processing
@@ -58,8 +60,9 @@ ToneCascade/
 ├── shaders/           # GLSL shaders
 ├── scripts/           # Deployment scripts
 └── tests/             # Unit/performance tests
+```
 
-### Why This Project?
+## Why This Project?
 #### ToneCascade demonstrates:
 
 🏗️ Architecture skills: Clean separation of audio/graphics/processing
@@ -82,9 +85,6 @@ Benchmark comparison suite
 ## License
 MIT License - see LICENSE
 ```
-
----
-
 ### **Key Improvements for ToneCascade**
 1. **Stronger Visual Identity**: The name suggests flowing, dynamic visuals
 2. **Clearer Performance Focus**: Metrics table shows optimization impact
