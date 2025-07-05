@@ -11,6 +11,6 @@
 
 ## Quick Start  
 ```bash  
-git clone https://github.com/yourusername/ToneCascade  
+git clone https://github.com/CozartKevin/ToneCascade  
 cd ToneCascade && mkdir build && cd build  
 cmake .. && make  
