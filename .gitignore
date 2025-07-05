@@ -1,32 +1,50 @@
-# Prerequisites
-*.d
+# Build output folders
+/build/
+/bin/
+/out/
+/build_debug/
+/build_release/
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# Visual Studio files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vcxproj.*
+*.vcxproj.filters
+*.VC.db
+*.VC.opendb
+*.ncb
+*.opensdf
+*.sdf
+*.cachefile
 
-# Precompiled Headers
-*.gch
-*.pch
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+# JUCE build files
+Builds/
+Intermediate/
 
-# Fortran module files
-*.mod
-*.smod
+# Windows system files
+Thumbs.db
+ehthumbs.db
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
 
-# Executables
-*.exe
-*.out
-*.app
+# macOS system files (if you share cross-platform)
+.DS_Store
+
+# Debug and release symbols
+*.pdb
+*.ilk
+*.idb
+
+# Shader binaries (if applicable)
+Shaders/*.spv
