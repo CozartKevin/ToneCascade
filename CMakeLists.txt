@@ -49,7 +49,16 @@ target_sources(ToneCascade PRIVATE
     Source/PluginProcessor.h
     Source/PluginEditor.cpp
     Source/PluginEditor.h
+    Source/JuceIncludes.h
 )
+
+# Critical additional steps:
+target_include_directories(ToneCascade PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source  # Ensures #include "JuceIncludes.h" works
+)
+
+# Organize files in IDEs (Visual Studio/Xcode/CLion)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})
 
 # -----------------------------------------------------------------------------
 # Compiler Settings
