@@ -1,6 +1,19 @@
 cmake_minimum_required(VERSION 3.22)  # JUCE requires CMake 3.15+
 project(ToneCascade LANGUAGES C CXX)    # C++ project
 
+if(WIN32)
+  
+    add_compile_definitions(
+        # Nuclear options for VST2
+        JUCE_VST3_CAN_REPLACE_VST2=0
+        JUCE_VST3_EMULATE_VST2=0
+        JUCE_VST3_EMULATE_VST2_MODE=0
+        VST2_CAN_REPLACE_VST3=0    
+    )
+    
+
+endif()
+
 # Find JUCE (assumes JUCE is installed or a submodule)
 include(FetchContent)
 FetchContent_Declare(
@@ -19,8 +32,10 @@ juce_add_plugin(ToneCascade
     COMPANY_NAME "KevinCozart"         # Your company/author
     IS_SYNTH FALSE                 # Not a synth
     NEEDS_MIDI_INPUT FALSE         # Disable MIDI if unused
-    FORMATS Standalone         # Plugin formats (adjust as needed)
-    COPY_PLUGIN_AFTER_BUILD TRUE
+    FORMATS VST3 Standalone         # Plugin formats (adjust as needed)
+    PLUGIN_CODE "ToCa"
+    PLUGIN_MANUFACTURER_CODE KevC
+    COPY_PLUGIN_AFTER_BUILD FALSE
 )
 
 
@@ -49,6 +64,7 @@ target_sources(ToneCascade PRIVATE
     Source/PluginProcessor.h
     Source/PluginEditor.cpp
     Source/PluginEditor.h
+    Source/JuceIncludes.h
 )
 
 # -----------------------------------------------------------------------------
