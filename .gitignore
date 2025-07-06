@@ -28,6 +28,8 @@ Makefile
 # JUCE build files
 Builds/
 Intermediate/
+*.vst3
+*.dmg
 
 # Windows system files
 Thumbs.db
