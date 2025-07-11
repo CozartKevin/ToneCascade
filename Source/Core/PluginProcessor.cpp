@@ -38,11 +38,6 @@ void ToneCascadeAudioProcessor::addParameterListener(
     }
 }
 
-void ToneCascadeAudioProcessor::someCommonMethod()
-{
-    // Your implementation
-}
-
 //==============================================================================
 // Audio Processing
 void ToneCascadeAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
@@ -164,4 +159,9 @@ void ToneCascadeAudioProcessor::someCommonMethod()
 {
     // Add actual implementation or temporary:
     jassertfalse; // Flag for future implementation
+}
+
+juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+{
+    return new ToneCascadeAudioProcessor();
 }

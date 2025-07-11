@@ -58,6 +58,8 @@ public:
     void getStateInformation(juce::MemoryBlock& destData) override;
     void setStateInformation(const void* data, int sizeInBytes) override;
 
+    void someCommonMethod() override;
+
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
 
