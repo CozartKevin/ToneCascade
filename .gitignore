@@ -50,3 +50,5 @@ ehthumbs.db
 
 # Shader binaries (if applicable)
 Shaders/*.spv
+/.vs/Tone-Cascade/FileContentIndex
+/.vs/Tone-Cascade/v17

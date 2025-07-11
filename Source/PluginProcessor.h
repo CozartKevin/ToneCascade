@@ -53,7 +53,12 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+
 private:
     //==============================================================================
+    float lastSampleRate = 0.0f;
+    int lastBlockSize = 0;
+
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ToneCascadeAudioProcessor)
 };

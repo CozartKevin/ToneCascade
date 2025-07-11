@@ -65,6 +65,7 @@ target_sources(ToneCascade PRIVATE
     Source/PluginEditor.cpp
     Source/PluginEditor.h
     Source/JuceIncludes.h
+    Source/
 )
 
 # Critical additional steps:

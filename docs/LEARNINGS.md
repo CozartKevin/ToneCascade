@@ -53,3 +53,12 @@ https://ccrma.stanford.edu/~jos/juce_modules/md__Users_jos_w_JUCEModulesDoc_docs
             ✅ Main.cpp, PluginProcessor.* → app/plugin entry points.
             ✅ PluginEditor.* → main editor window.
             ✅ JuceIncludes.h → one place, shared, keeps all includes tidy.
+
+# Project Organization
+    - Move Default .cpp/.h into corresponding CORE/UI folders and mirror this structure in TESTS with a CORE/UI folder.  
+    - Place test files related to each portion in the appropriate sections. 
+
+# Project opening
+    - in VS 2022 use Open local folder and it detects a CMake project. 
+    - Open .sln to build different types of the project (Standalone, VST3)
+
