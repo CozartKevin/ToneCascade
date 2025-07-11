@@ -5,6 +5,16 @@
       "out\\install\\x64-Debug"
     ]
   },
-  "ExpandedNodes": [],
+  "ExpandedNodes": [
+    "",
+    "\\build",
+    "\\build\\_deps",
+    "\\Source",
+    "\\Source\\Core",
+    "\\Source\\UI",
+    "\\Tests",
+    "\\Tests\\TestCore"
+  ],
+  "SelectedNode": "\\build\\_deps",
   "PreviewInSolutionExplorer": false
 }

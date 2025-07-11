@@ -60,17 +60,46 @@ target_link_libraries(ToneCascade PRIVATE OpenMP::OpenMP_CXX)
 # Core Sources (Start Minimal)
 # -----------------------------------------------------------------------------
 target_sources(ToneCascade PRIVATE
-    Source/PluginProcessor.cpp
-    Source/PluginProcessor.h
-    Source/PluginEditor.cpp
-    Source/PluginEditor.h
-    Source/JuceIncludes.h
-    Source/
+
+    # Core Audio/DSP
+    Source/Core/AudioEngine.cpp
+    Source/Core/AudioEngine.h
+    Source/Core/Parameters.h
+    Source/Core/PluginProcessor.cpp
+    Source/Core/PluginProcessor.h
+
+    # Standalone Entry Point (Optional)
+    Source/Core/Standalone/Main.cpp
+
+    # UI
+    Source/UI/CustomLook.cpp
+    Source/UI/CustomLook.h
+    Source/UI/PluginEditor.cpp
+    Source/UI/PluginEditor.h
+    Source/UI/Visualizer.cpp
+    Source/UI/Visualizer.h
+   
+)
+
+# Optional but helpful for IDE organization
+source_group("Core" FILES
+    Source/Core/*.cpp
+    Source/Core/*.h
+)
+source_group("UI" FILES
+    Source/UI/*.cpp
+    Source/UI/*.h
 )
 
 # Critical additional steps:
 target_include_directories(ToneCascade PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/Source  # Ensures #include "JuceIncludes.h" works
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/Core"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/UI"
+)
+
+# For shared headers
+target_include_directories(ToneCascade PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source"
 )
 
 # Organize files in IDEs (Visual Studio/Xcode/CLion)
@@ -79,6 +108,14 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})
 # -----------------------------------------------------------------------------
 # Compiler Settings
 # -----------------------------------------------------------------------------
+target_compile_definitions(ToneCascade PRIVATE 
+    JUCE_MODAL_LOOPS_PERMITTED=0  # Disable GUI features in Core
+)
+# Fail if UI tries to include Core headers indirectly
+target_compile_definitions(ToneCascade PRIVATE
+    JUCE_STRICT_REFCOUNTEDPTR=1
+)
+
 target_compile_features(ToneCascade PRIVATE cxx_std_17)  # Require C++17
 set_target_properties(ToneCascade PROPERTIES CXX_EXTENSIONS OFF)  # Disable compiler extensions (e.g., GNUisms)
 

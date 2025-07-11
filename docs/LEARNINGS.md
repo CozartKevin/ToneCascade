@@ -1,7 +1,7 @@
 # JUCE system install using CMAKE URL
 https://ccrma.stanford.edu/~jos/juce_modules/md__Users_jos_w_JUCEModulesDoc_docs_CMake_API.html 
 
-# CmakeList.txt
+# CmakeList.txt Setup issues
     ## ERROR:  CMake Compiler C Error
         CMake Error at D:/development/frameworks/JUCE/install/lib/cmake/JUCE-8.0.8/JUCEModuleSupport.cmake:48 (message):
         A C compiler is required to build JUCE.  Add 'C' to your project's
@@ -57,8 +57,18 @@ https://ccrma.stanford.edu/~jos/juce_modules/md__Users_jos_w_JUCEModulesDoc_docs
 # Project Organization
     - Move Default .cpp/.h into corresponding CORE/UI folders and mirror this structure in TESTS with a CORE/UI folder.  
     - Place test files related to each portion in the appropriate sections. 
+    - Update includes to have ../Core/"Filename".h or ../UI/"Filename".h so that build would be possible again.
+    - Figuring out what headers are needed is rough.  TOo many options. 
+        - Going with Pure Virtual Interface over Factory Pattern and Forward  declaration
+            - Factory pattern seems to be Setting up a EditorFactory.h in the CORE and UI folders then creating a static in CORE, A new editor in UI then tracing that back to the pluginProcessor.cpp
+            - Forward declaration seems to be setting up a class within the pluginprocessor.h file and then including the editor in the pluginprocessor.cpp file. 
+            - Pure Virtual Interface is  creating a PP.h EditorInterface which is usued in UI/PE.h then adding in the PE.h as an include to the Core/pp.cpp
+        - These all seem like they do the same thing a slightly different way and I'm not completely understanding the difference. 
 
 # Project opening
     - in VS 2022 use Open local folder and it detects a CMake project. 
     - Open .sln to build different types of the project (Standalone, VST3)
 
+# Parameters.h
+    - Allows seperation of Core and UI files and build structures so that audio isn't dependent on UI elements. 
+    - For now inputing only Gain ID and Cutoff Identifiers in a Params namespace so I can build as I go. 
