@@ -16,7 +16,14 @@ ToneCascadeAudioProcessor::ToneCascadeAudioProcessor()
     apvts(*this, nullptr, "Parameters", createParameterLayout())
 {
     // Parameter initialization
-}
+    //setPlayConfigDetails(2, 2, getSampleRate(), getBlockSize());
+    // Guaranteed valid audio config
+    
+
+
+    juce::Logger::writeToLog("Sample rate: " + juce::String(getSampleRate()));
+
+ }
 
 ToneCascadeAudioProcessor::~ToneCascadeAudioProcessor()
 {
@@ -42,16 +49,28 @@ void ToneCascadeAudioProcessor::addParameterListener(
 // Audio Processing
 void ToneCascadeAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    lastSampleRate = sampleRate;
-    lastBlockSize = samplesPerBlock;
+ 
+    phase = 0.0f;
+    
 }
 
 void ToneCascadeAudioProcessor::releaseResources()
 {
+    
+    writer.reset();      // Flush and close writer first
+    outputStream.reset(); // Then close the stream
+   
 }
 
 void ToneCascadeAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    //juce::ignoreUnused(midiMessages);
+
+    // If no input, generate a 440Hz sine wave (A4 note)
+    //if (buffer.getNumSamples() == 0 || buffer.getNumChannels() == 0)
+     //  return;
+
+    /*
     juce::ScopedNoDenormals noDenormals;
     const int numChannels = buffer.getNumChannels();
     const int numSamples = buffer.getNumSamples();
@@ -65,7 +84,34 @@ void ToneCascadeAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
     // DOESN'T process or pass through input channels
     for (int ch = 0; ch < numInputs; ++ch) {
         auto* data = buffer.getWritePointer(ch); // Gets pointer but does nothing
+
+
+
+
     }
+    */
+    // 1. MUST clear buffers first (prevents feedback)
+    buffer.clear();
+
+    // 2. Verified tone generation
+    static float phase = 0.0f;
+    const float freq = 440.0f; // A4 note
+    const float phaseDelta = freq * juce::MathConstants<float>::twoPi / getSampleRate();
+
+    for (int i = 0; i < buffer.getNumSamples(); ++i) {
+        float sample = 0.2f * std::sin(phase); // -14dB headroom
+        phase += phaseDelta;
+
+        // 3. Write to ALL channels
+        for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
+            buffer.setSample(ch, i, sample);
+    }
+
+    // 4. Professional phase wrapping
+    if (phase >= juce::MathConstants<float>::twoPi)
+        phase -= juce::MathConstants<float>::twoPi;
+
+
 }
 
 //==============================================================================
@@ -145,12 +191,13 @@ ToneCascadeAudioProcessor::createParameterLayout()
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
-    // Add your parameters here
+    // Sensitivity parameter - core properties only
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        "gain",
-        "Gain",
-        juce::NormalisableRange<float>(0.0f, 1.0f),
-        0.5f));
+        "sensitivity",       // Internal ID (lowercase)
+        "Sensitivity",       // Display name
+        juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f),
+        0.5f                // Default
+    ));
 
     return layout;
 }

@@ -10,4 +10,4 @@
 #include <juce_audio_utils/juce_audio_utils.h>     // Utilities like audio format readers, MIDI
 #include <juce_opengl/juce_opengl.h>               // OpenGL context and helpers
 #include <juce_dsp/juce_dsp.h>					   // DSP classes (FFT, filters, ect)
-
+#include <juce_audio_devices/juce_audio_devices.h>

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)  # JUCE requires CMake 3.15+
+﻿cmake_minimum_required(VERSION 3.22)  # JUCE requires CMake 3.15+
 project(ToneCascade LANGUAGES C CXX)    # C++ project
 
 if(WIN32)
@@ -28,27 +28,51 @@ FetchContent_MakeAvailable(JUCE)
 # -----------------------------------------------------------------------------
 juce_add_plugin(ToneCascade
     VERSION 0.1.0
-    PRODUCT_NAME "ToneCascade"      # Plugin name
-    COMPANY_NAME "KevinCozart"         # Your company/author
-    IS_SYNTH FALSE                 # Not a synth
-    NEEDS_MIDI_INPUT FALSE         # Disable MIDI if unused
-    FORMATS VST3 Standalone         # Plugin formats (adjust as needed)
+    PRODUCT_NAME "ToneCascade"
+    COMPANY_NAME "CozartKevin"
     PLUGIN_CODE "ToCa"
-    PLUGIN_MANUFACTURER_CODE KevC
+    PLUGIN_MANUFACTURER_CODE "CozK"
+    
+    # Core configuration
+    IS_SYNTH FALSE
+    NEEDS_MIDI_INPUT FALSE
     COPY_PLUGIN_AFTER_BUILD FALSE
+    FORMATS VST3 Standalone
+
+    # All JUCE modules in REQUIRES
+    REQUIRES
+        juce_audio_basics       # Core audio processing
+        juce_audio_processors   # Plugin hosting
+
+        juce_audio_formats      # File I/O
+        juce_dsp                # DSP algorithms
+        juce_gui_basics         # UI components
+        juce_graphics           # Drawing
+        juce_opengl             # GL rendering
 )
 
-
-# Core JUCE + OpenGL
+# Non-JUCE dependencies only
 target_link_libraries(ToneCascade PRIVATE
-    juce::juce_recommended_config_flags  # Best practice compiler flags
-    juce::juce_audio_utils
-    juce::juce_audio_devices
-    juce::juce_gui_basics
-    juce::juce_graphics
-    juce::juce_opengl
-    juce::juce_dsp
+    juce_audio_utils        # Audio utilities
+    juce_audio_devices      # Device I/O
+    juce::juce_recommended_config_flags  # Compiler optimizations
+    OpenMP::OpenMP_CXX                   # Parallel processing
 )
+
+# Platform-specific OpenGL linking
+if(APPLE)
+    target_link_libraries(ToneCascade PRIVATE "-framework OpenGL")
+elseif(WIN32)
+    target_link_libraries(ToneCascade PRIVATE opengl32)
+endif()
+
+# Platform-specific requirements
+if(JucePlugin_Build_Standalone)
+    # Additional standalone-only dependencies
+    target_compile_definitions(ToneCascade PRIVATE
+        JUCE_STANDALONE_APPLICATION=1
+    )
+endif()
 
 # Parallel processing
 find_package(OpenMP REQUIRED)  # Force OpenMP for your FFT
@@ -72,7 +96,7 @@ target_sources(ToneCascade PRIVATE
     Source/Core/Standalone/Main.cpp
 
     # UI
-    Source/UI/CustomLook.cpp
+  
     Source/UI/CustomLook.h
     Source/UI/PluginEditor.cpp
     Source/UI/PluginEditor.h
@@ -108,12 +132,17 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})
 # -----------------------------------------------------------------------------
 # Compiler Settings
 # -----------------------------------------------------------------------------
-target_compile_definitions(ToneCascade PRIVATE 
-    JUCE_MODAL_LOOPS_PERMITTED=0  # Disable GUI features in Core
-)
+
 # Fail if UI tries to include Core headers indirectly
 target_compile_definitions(ToneCascade PRIVATE
+    JUCE_MODAL_LOOPS_PERMITTED=0
     JUCE_STRICT_REFCOUNTEDPTR=1
+    JUCE_DSP_ENABLE_SNAP_TO_ZERO=1  # ← Critical for denormal handling
+    JUCE_USE_VDSP_FRAMEWORK=0       # ← Avoid macOS DSP quirks
+    JUCE_WASAPI=1
+
+ 
+
 )
 
 target_compile_features(ToneCascade PRIVATE cxx_std_17)  # Require C++17

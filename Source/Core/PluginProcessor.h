@@ -60,13 +60,23 @@ public:
 
     void someCommonMethod() override;
 
-    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+    
+    juce::AudioProcessorValueTreeState apvts;
+
+    juce::AbstractFifo fftFifo{ 1024 };
+    std::array<float, 512> fftData;
+
+    std::unique_ptr<juce::AudioFormatWriter> writer;
+    std::unique_ptr<juce::FileOutputStream> outputStream;
+    juce::WavAudioFormat wavFormat;
 
 
 private:
-    float lastSampleRate = 0.0f;
-    int lastBlockSize = 0;
-    juce::AudioProcessorValueTreeState apvts;
-
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+    float lastSampleRate;
+    double phase = 0.0; // Member variable for phase tracking
+    std::atomic<bool> shouldResetPhase{ true };
+   
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ToneCascadeAudioProcessor)
 };
