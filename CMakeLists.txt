@@ -1,5 +1,11 @@
 ﻿cmake_minimum_required(VERSION 3.22)  # JUCE requires CMake 3.15+
 project(ToneCascade LANGUAGES C CXX)    # C++ project
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+
+get_filename_component(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" ABSOLUTE)
 
 if(WIN32)
   
@@ -96,7 +102,7 @@ target_sources(ToneCascade PRIVATE
     Source/Core/Standalone/Main.cpp
 
     # UI
-  
+    Source/UI/CustomLook.cpp
     Source/UI/CustomLook.h
     Source/UI/PluginEditor.cpp
     Source/UI/PluginEditor.h

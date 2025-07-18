@@ -52,6 +52,9 @@ void ToneCascadeAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
  
     phase = 0.0f;
     
+    bypassGain.reset(sampleRate, 0.05);  //50ms fade
+    bypassGain.setTargetValue(1.0f);  // start enabled
+
 }
 
 void ToneCascadeAudioProcessor::releaseResources()
@@ -65,31 +68,29 @@ void ToneCascadeAudioProcessor::releaseResources()
 void ToneCascadeAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     //juce::ignoreUnused(midiMessages);
-
-    // If no input, generate a 440Hz sine wave (A4 note)
-    //if (buffer.getNumSamples() == 0 || buffer.getNumChannels() == 0)
-     //  return;
-
-    /*
+    
     juce::ScopedNoDenormals noDenormals;
-    const int numChannels = buffer.getNumChannels();
-    const int numSamples = buffer.getNumSamples();
-    const int numInputs = getTotalNumInputChannels();
 
-    // Clears unused output channels
-    for (int ch = numInputs; ch < numChannels; ++ch) {
-        buffer.clear(ch, 0, numSamples);
+    //Verify buffer state
+    jassert(buffer.getNumChannels() > 0);
+    jassert(buffer.getNumSamples() > 0);
+
+    // Sample-by-sample processing for smooth gain
+    for (int i = 0; i < buffer.getNumSamples(); ++i) {
+
+        const float gain = bypassGain.getNextValue(); // Smooth ramp value
+
+        // MODIFIED: Passthrough now multiplies by gain
+        for (int ch = 0; ch < buffer.getNumChannels(); ++ch) {
+            buffer.getWritePointer(ch)[i] *= gain;  // Passthrough * gain 
+        }
     }
 
-    // DOESN'T process or pass through input channels
-    for (int ch = 0; ch < numInputs; ++ch) {
-        auto* data = buffer.getWritePointer(ch); // Gets pointer but does nothing
 
+}
 
-
-
-    }
-    */
+void ToneCascadeAudioProcessor::generateTone(juce::AudioSampleBuffer& buffer)
+{
     // 1. MUST clear buffers first (prevents feedback)
     buffer.clear();
 
@@ -110,8 +111,6 @@ void ToneCascadeAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
     // 4. Professional phase wrapping
     if (phase >= juce::MathConstants<float>::twoPi)
         phase -= juce::MathConstants<float>::twoPi;
-
-
 }
 
 //==============================================================================

@@ -29,6 +29,8 @@ public:
     void releaseResources() override;
     void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
+    void generateTone(juce::AudioSampleBuffer& buffer);
+
     //========================================================================
     // EditorInterface Implementation
     float getParameterValue(int paramID) const override;
@@ -76,7 +78,9 @@ private:
     float lastSampleRate;
     double phase = 0.0; // Member variable for phase tracking
     std::atomic<bool> shouldResetPhase{ true };
-   
     
+    bool isBypassed = false;
+    juce::LinearSmoothedValue<float> bypassGain;
+   
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ToneCascadeAudioProcessor)
 };
