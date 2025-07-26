@@ -72,6 +72,12 @@ public:
     std::unique_ptr<juce::FileOutputStream> outputStream;
     juce::WavAudioFormat wavFormat;
 
+    void setBypassed(bool bypassed) { isBypassed = bypassed; }
+    bool getBypassed() const { return isBypassed; }
+    double getSampleRate() const { return currentSampleRate; }
+
+
+    bool testIsBypassed() const { return isBypassed; }
 
 private:
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
@@ -80,6 +86,7 @@ private:
     std::atomic<bool> shouldResetPhase{ true };
     
     bool isBypassed = false;
+    double currentSampleRate = 0.0;
     juce::LinearSmoothedValue<float> bypassGain;
    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ToneCascadeAudioProcessor)

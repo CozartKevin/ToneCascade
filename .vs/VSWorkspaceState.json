@@ -9,12 +9,14 @@
     "",
     "\\build",
     "\\build\\_deps",
-    "\\Source",
-    "\\Source\\Core",
-    "\\Source\\UI",
-    "\\Tests",
-    "\\Tests\\TestCore"
+    "\\build\\_deps\\juce-build",
+    "\\build\\_deps\\juce-build\\modules",
+    "\\build\\_deps\\juce-build\\tools",
+    "\\build\\_deps\\juce-build\\tools\\extras",
+    "\\build\\_deps\\juce-build\\tools\\extras\\Build",
+    "\\out",
+    "\\out\\build"
   ],
-  "SelectedNode": "\\build\\_deps",
+  "SelectedNode": "\\Source\\Tests\\CMakeLists.txt",
   "PreviewInSolutionExplorer": false
 }

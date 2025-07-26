@@ -29,6 +29,10 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(JUCE)
 
+
+# Testing enable flag
+option(BUILD_TESTING "Build unit tests" ON)
+
 # -----------------------------------------------------------------------------
 # Plugin Target
 # -----------------------------------------------------------------------------
@@ -47,6 +51,9 @@ juce_add_plugin(ToneCascade
 
     # All JUCE modules in REQUIRES
     REQUIRES
+        juce_core
+        juce_events
+        juce_unit_test
         juce_audio_basics       # Core audio processing
         juce_audio_processors   # Plugin hosting
 
@@ -55,6 +62,7 @@ juce_add_plugin(ToneCascade
         juce_gui_basics         # UI components
         juce_graphics           # Drawing
         juce_opengl             # GL rendering
+        
 )
 
 # Non-JUCE dependencies only
@@ -63,6 +71,7 @@ target_link_libraries(ToneCascade PRIVATE
     juce_audio_devices      # Device I/O
     juce::juce_recommended_config_flags  # Compiler optimizations
     OpenMP::OpenMP_CXX                   # Parallel processing
+    
 )
 
 # Platform-specific OpenGL linking
@@ -71,6 +80,15 @@ if(APPLE)
 elseif(WIN32)
     target_link_libraries(ToneCascade PRIVATE opengl32)
 endif()
+
+if(MSVC)
+    # Increase compiler heap size
+    add_compile_options(/Zm2000)  # 200% default heap size
+    
+    # Reduce parallel compilation for memory-constrained systems
+    set(CMAKE_VS_GLOBALS "UseMultiToolTask=true;EnforceProcessCountAcrossBuilds=true;MaxToolTasks=4")
+endif()
+
 
 # Platform-specific requirements
 if(JucePlugin_Build_Standalone)
@@ -109,7 +127,13 @@ target_sources(ToneCascade PRIVATE
     Source/UI/Visualizer.cpp
     Source/UI/Visualizer.h
    
-)
+ )
+
+
+if(BUILD_TESTING)
+    enable_testing()
+    add_subdirectory(Source/Tests)
+endif()
 
 # Optional but helpful for IDE organization
 source_group("Core" FILES
