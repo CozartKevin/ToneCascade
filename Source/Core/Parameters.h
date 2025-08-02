@@ -1,5 +1,5 @@
 #pragma once
-#include "../JuceIncludes.h"
+#include "JuceIncludes.h"
 
 namespace Params {
     // IDs as compile-time constants

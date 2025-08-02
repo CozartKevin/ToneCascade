@@ -8,10 +8,10 @@
 
 #pragma once
 
-
+#include "JuceIncludes.h"
 #include "../Core/Parameters.h"
 #include "../Core/EditorInterface.h"
-#include "JuceIncludes.h"
+
 
 //==============================================================================
 /**

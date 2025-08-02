@@ -1,25 +1,14 @@
 ﻿cmake_minimum_required(VERSION 3.22)  # JUCE requires CMake 3.15+
 project(ToneCascade LANGUAGES C CXX)    # C++ project
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 
-get_filename_component(PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" ABSOLUTE)
-
-if(WIN32)
-  
-    add_compile_definitions(
-        # Nuclear options for VST2
-        JUCE_VST3_CAN_REPLACE_VST2=0
-        JUCE_VST3_EMULATE_VST2=0
-        JUCE_VST3_EMULATE_VST2_MODE=0
-        VST2_CAN_REPLACE_VST3=0    
-    )
-    
-
-endif()
-
+# =============================================================================
+# 1. JUCE Setup (via FetchContent)
+# =============================================================================
 # Find JUCE (assumes JUCE is installed or a submodule)
 include(FetchContent)
 FetchContent_Declare(
@@ -29,13 +18,54 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(JUCE)
 
+# Make JUCE modules available globally
+include_directories(${JUCE_SOURCE_DIR}/modules)
 
-# Testing enable flag
-option(BUILD_TESTING "Build unit tests" ON)
+# =============================================================================
+# 2. Core Static Library (All testable DSP code)
+# =============================================================================
+add_library(ToneCascadeCore STATIC
+    Source/Core/AudioEngine.cpp
+    Source/Core/Parameters.h
+    Source/Core/PluginProcessor.cpp
+)
 
-# -----------------------------------------------------------------------------
-# Plugin Target
-# -----------------------------------------------------------------------------
+
+
+add_library(ToneCascadeUI STATIC
+    Source/UI/CustomLook.cpp
+    Source/UI/PluginEditor.cpp
+    Source/UI/Visualizer.cpp
+)
+
+
+target_include_directories(ToneCascadeCore PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/Core"
+    "${JUCE_SOURCE_DIR}/modules" 
+)
+
+target_include_directories(ToneCascadeUI PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/UI"
+)
+
+
+# Organize files in IDEs (Visual Studio/Xcode/CLion)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})
+
+
+
+# Core compiler settings (applied to both plugin and tests)
+target_compile_definitions(ToneCascadeCore PRIVATE
+    JUCE_DSP_ENABLE_SNAP_TO_ZERO=1  # Critical for denormal handling
+)
+
+
+# =============================================================================
+# 3. JUCE Plugin Target
+# =============================================================================
+
 juce_add_plugin(ToneCascade
     VERSION 0.1.0
     PRODUCT_NAME "ToneCascade"
@@ -44,10 +74,11 @@ juce_add_plugin(ToneCascade
     PLUGIN_MANUFACTURER_CODE "CozK"
     
     # Core configuration
+    FORMATS VST3 Standalone
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT FALSE
     COPY_PLUGIN_AFTER_BUILD FALSE
-    FORMATS VST3 Standalone
+    
 
     # All JUCE modules in REQUIRES
     REQUIRES
@@ -56,7 +87,8 @@ juce_add_plugin(ToneCascade
         juce_unit_test
         juce_audio_basics       # Core audio processing
         juce_audio_processors   # Plugin hosting
-
+        juce_audio_utils        # Audio utilities
+        juce_audio_devices      # Device I/O
         juce_audio_formats      # File I/O
         juce_dsp                # DSP algorithms
         juce_gui_basics         # UI components
@@ -65,53 +97,17 @@ juce_add_plugin(ToneCascade
         
 )
 
-# Non-JUCE dependencies only
+
+
 target_link_libraries(ToneCascade PRIVATE
-    juce_audio_utils        # Audio utilities
-    juce_audio_devices      # Device I/O
-    juce::juce_recommended_config_flags  # Compiler optimizations
+    ToneCascadeCore
+    ToneCascadeUI
+    juce_audio_utils        # Audio utilities for standalone build
+    juce_audio_devices      # Device I/O for standalone build
+    juce_recommended_config_flags  # Compiler optimizations
     OpenMP::OpenMP_CXX                   # Parallel processing
     
 )
-
-# Platform-specific OpenGL linking
-if(APPLE)
-    target_link_libraries(ToneCascade PRIVATE "-framework OpenGL")
-elseif(WIN32)
-    target_link_libraries(ToneCascade PRIVATE opengl32)
-endif()
-
-if(MSVC)
-    # Set heap size before any targets are created
-    add_compile_options(
-        /MP4     # Moderate parallel compilation
-        /bigobj  # Required for JUCE templates
-    )
-    
-
-
-    # Reduce MSBuild parallelism
-    set(CMAKE_VS_GLOBALS 
-        "UseMultiToolTask=true"
-        "EnforceProcessCountAcrossBuilds=true"
-        "MaxToolTasks=4"
-    )
-endif()
-
-
-# Platform-specific requirements
-if(JucePlugin_Build_Standalone)
-    # Additional standalone-only dependencies
-    target_compile_definitions(ToneCascade PRIVATE
-        JUCE_STANDALONE_APPLICATION=1
-    )
-endif()
-
-# Parallel processing
-find_package(OpenMP REQUIRED)  # Force OpenMP for your FFT
-target_link_libraries(ToneCascade PRIVATE OpenMP::OpenMP_CXX)
-
-
 
 # -----------------------------------------------------------------------------
 # Core Sources (Start Minimal)
@@ -138,42 +134,9 @@ target_sources(ToneCascade PRIVATE
    
  )
 
-
-if(BUILD_TESTING)
-    # Executable for tests
-    add_executable(ToneCascadeTests
-        ${CMAKE_CURRENT_SOURCE_DIR}/Source/Tests/core/audio/AudioPassthroughTest.cpp
-        # Other test files...
-    )
-
-    # Link test executable to core library + JUCE test framework
-    target_link_libraries(ToneCascadeTests PRIVATE
-        ToneCascade
-        juce_unit_test
-    )
-
-    # Include paths
-    target_include_directories(ToneCascadeTests PRIVATE
-        "${CMAKE_CURRENT_SOURCE_DIR}/Source"
-    )
-
-    # Register with CTest
-    enable_testing()
-    add_test(NAME ToneCascadeTests COMMAND ToneCascadeTests)
-endif()
-
-# Optional but helpful for IDE organization
-source_group("Core" FILES
-    Source/Core/*.cpp
-    Source/Core/*.h
-)
-source_group("UI" FILES
-    Source/UI/*.cpp
-    Source/UI/*.h
-)
-
-# Critical additional steps:
+ # Critical additional steps:
 target_include_directories(ToneCascade PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source"
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/Core"
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/UI"
 )
@@ -181,14 +144,116 @@ target_include_directories(ToneCascade PRIVATE
 # For shared headers
 target_include_directories(ToneCascade PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/Source"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/Core"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/UI"
+    "${JUCE_SOURCE_DIR}/modules"
 )
 
-# Organize files in IDEs (Visual Studio/Xcode/CLion)
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})
+# =============================================================================
+# 4. Testing (Only built if enabled)
+# =============================================================================
+option(BUILD_TESTING "Build unit tests" OFF)
+
+if(BUILD_TESTING)
+    # -------------------------------------------------------------------------
+    # Test Executable
+    # -------------------------------------------------------------------------
+    add_executable(ToneCascadeTests
+        Source/tests/core/audio/AudioPassthroughTest.cpp
+        # Other test files...
+    )
+
+
+
+    # Link against core library + test framework
+    target_link_libraries(ToneCascadeTests PRIVATE
+        ToneCascadeCore  # Reusable core
+        juce_unit_test   # No namespace with FetchContent
+    )
+
+    # Test-specific includes
+    target_include_directories(ToneCascadeTests PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/Source"
+
+    )
+
+    # Required for JUCE test framework
+    target_compile_definitions(ToneCascadeTests PRIVATE
+        JUCE_UNIT_TESTS=1
+    )
+   # -------------------------------------------------------------------------
+    # Test Registration
+    # -------------------------------------------------------------------------
+    enable_testing()
+    add_test(NAME ToneCascadeTests COMMAND ToneCascadeTests)
+endif()
+
+
+
+# =============================================================================
+# 5. Platform Specifics
+# =============================================================================
+if(WIN32)
+    target_link_libraries(ToneCascade PRIVATE opengl32)
+    target_compile_definitions(ToneCascade PRIVATE
+        JUCE_VST3_CAN_REPLACE_VST2=0
+        JUCE_WASAPI=1
+    )
+elseif(APPLE)
+    target_link_libraries(ToneCascade PRIVATE "-framework OpenGL")
+endif()
+
+
+# Platform-specific requirements
+if(JucePlugin_Build_Standalone)
+    # Additional standalone-only dependencies
+    target_compile_definitions(ToneCascade PRIVATE
+        JUCE_STANDALONE_APPLICATION=1
+    )
+
+   
+target_link_libraries(ToneCascade PRIVATE
+    juce_audio_utils        # Audio utilities for standalone build
+    juce_audio_devices      # Device I/O for standalone build
+)
+
+endif()
+
+# Parallel processing
+find_package(OpenMP REQUIRED)  # Force OpenMP for your FFT
+target_link_libraries(ToneCascade PRIVATE OpenMP::OpenMP_CXX)
+
+
+# =============================================================================
+# 6. IDE Organization
+# =============================================================================
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Source" PREFIX "CORE"
+    FILES
+        Source/Core/*.cpp
+        Source/Core/*.h
+ )
+
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Source" PREFIX "UI"
+    FILES   
+        Source/UI/*.cpp
+        Source/UI/*.h
+)
+
+if(BUILD_TESTING)
+    source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Source/Tests" PREFIX "CoreAudioTests"
+        FILES
+            Source/Tests/core/audio/*.cpp
+    )
+   
+endif()
+
+
+
 
 # -----------------------------------------------------------------------------
 # Compiler Settings
 # -----------------------------------------------------------------------------
+
 
 # Fail if UI tries to include Core headers indirectly
 target_compile_definitions(ToneCascade PRIVATE
@@ -201,6 +266,23 @@ target_compile_definitions(ToneCascade PRIVATE
  
 
 )
+
+if(MSVC)
+    # Critical MSVC settings for JUCE projects
+    add_compile_options(
+        /bigobj          # Required for JUCE templates
+        /Zm1500          # 1.5GB heap (adjust between 1000-2000 as needed)
+        /MP2             # Moderate parallelism
+        /EHsc            # Exception handling
+    )
+    
+    # Reduce memory pressure
+    set(CMAKE_VS_GLOBALS
+        "UseMultiToolTask=true"
+        "EnforceProcessCountAcrossBuilds=true"
+        "MaxToolTasks=2"
+    )
+endif()
 
 target_compile_features(ToneCascade PRIVATE cxx_std_17)  # Require C++17
 set_target_properties(ToneCascade PROPERTIES CXX_EXTENSIONS OFF)  # Disable compiler extensions (e.g., GNUisms)

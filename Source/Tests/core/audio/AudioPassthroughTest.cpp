@@ -1,4 +1,4 @@
-﻿#include <JuceIncludes.h>
+﻿#include "JuceHeader.h"
 #include "../Source/Core/PluginProcessor.h"
 
 namespace tc::test {

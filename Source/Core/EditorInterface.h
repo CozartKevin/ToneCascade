@@ -1,5 +1,5 @@
 // Core/EditorInterface.h
-#include "../JuceIncludes.h"
+#include "JuceIncludes.h"
 
 #pragma once
 class EditorInterface {

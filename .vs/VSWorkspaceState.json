@@ -10,6 +10,8 @@
     "\\build",
     "\\out",
     "\\out\\build",
+    "\\out\\build\\_deps",
+    "\\out\\build\\_deps\\juce-subbuild",
     "\\Source",
     "\\Source\\Tests",
     "\\Source\\Tests\\core",
