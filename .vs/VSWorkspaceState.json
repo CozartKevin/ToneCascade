@@ -8,15 +8,13 @@
   "ExpandedNodes": [
     "",
     "\\build",
-    "\\build\\_deps",
-    "\\build\\_deps\\juce-build",
-    "\\build\\_deps\\juce-build\\modules",
-    "\\build\\_deps\\juce-build\\tools",
-    "\\build\\_deps\\juce-build\\tools\\extras",
-    "\\build\\_deps\\juce-build\\tools\\extras\\Build",
     "\\out",
-    "\\out\\build"
+    "\\out\\build",
+    "\\Source",
+    "\\Source\\Tests",
+    "\\Source\\Tests\\core",
+    "\\Source\\Tests\\core\\audio"
   ],
-  "SelectedNode": "\\Source\\Tests\\CMakeLists.txt",
+  "SelectedNode": "\\CMakeLists.txt",
   "PreviewInSolutionExplorer": false
 }

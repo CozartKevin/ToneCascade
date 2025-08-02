@@ -1,0 +1,29 @@
+MSBuild version 17.14.14+a129329f1 for .NET Framework
+
+  Checking File Globs
+  ToneCascade_rc_lib.vcxproj -> D:\development\GitHub\Tone-Cascade\build\ToneCascade_rc_lib.dir\Debug\ToneCascade_rc_lib.lib
+  ToneCascade.vcxproj -> D:\development\GitHub\Tone-Cascade\build\ToneCascade_artefacts\Debug\ToneCascade_SharedCode.lib
+  juce_vst3_helper.vcxproj -> D:\development\GitHub\Tone-Cascade\build\Debug\juce_vst3_helper.exe
+  ToneCascade_VST3.vcxproj -> D:\development\GitHub\Tone-Cascade\build\ToneCascade_artefacts\Debug\VST3\ToneCascade.vst3\Contents\x86_64-win\ToneCascade.vst3
+  removing moduleinfo.json
+  juce_audio_basics.cpp
+  AudioPassthroughTest.cpp
+  juce_core.cpp
+  juce_audio_processors_lv2_libs.cpp
+  juce_events.cpp
+  juce_audio_processors.cpp
+  juce_gui_extra.cpp
+  juce_audio_processors_ara.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\include\optional(191,1): error C1060: compiler is out of heap space [D:\development\GitHub\Tone-Cascade\build\Source\Tests\core\ToneCascadeCoreTests.vcxproj]
+  (compiling source file '../../../_deps/juce-src/modules/juce_audio_basics/juce_audio_basics.cpp')
+  
+D:\development\GitHub\Tone-Cascade\build\_deps\juce-src\modules\juce_core\containers\juce_Array.h(866,1): error C1060: compiler is out of heap space [D:\development\GitHub\Tone-Cascade\build\Source\Tests\core\ToneCascadeCoreTests.vcxproj]
+  (compiling source file '../../../_deps/juce-src/modules/juce_audio_processors/juce_audio_processors.cpp')
+  
+D:\development\GitHub\Tone-Cascade\build\_deps\juce-src\modules\juce_events\native\juce_Messaging_windows.cpp(317,94): error C1060: compiler is out of heap space [D:\development\GitHub\Tone-Cascade\build\Source\Tests\core\ToneCascadeCoreTests.vcxproj]
+  (compiling source file '../../../_deps/juce-src/modules/juce_events/juce_events.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\include\tuple(540,1): error C1060: compiler is out of heap space [D:\development\GitHub\Tone-Cascade\build\Source\Tests\core\ToneCascadeCoreTests.vcxproj]
+  (compiling source file '../../../../Source/Tests/core/audio/AudioPassthroughTest.cpp')
+  
+  ToneCascade_Standalone.vcxproj -> D:\development\GitHub\Tone-Cascade\build\ToneCascade_artefacts\Debug\Standalone\ToneCascade.exe

@@ -82,11 +82,20 @@ elseif(WIN32)
 endif()
 
 if(MSVC)
-    # Increase compiler heap size
-    add_compile_options(/Zm2000)  # 200% default heap size
+    # Set heap size before any targets are created
+    add_compile_options(
+        /MP4     # Moderate parallel compilation
+        /bigobj  # Required for JUCE templates
+    )
     
-    # Reduce parallel compilation for memory-constrained systems
-    set(CMAKE_VS_GLOBALS "UseMultiToolTask=true;EnforceProcessCountAcrossBuilds=true;MaxToolTasks=4")
+
+
+    # Reduce MSBuild parallelism
+    set(CMAKE_VS_GLOBALS 
+        "UseMultiToolTask=true"
+        "EnforceProcessCountAcrossBuilds=true"
+        "MaxToolTasks=4"
+    )
 endif()
 
 
@@ -131,8 +140,26 @@ target_sources(ToneCascade PRIVATE
 
 
 if(BUILD_TESTING)
+    # Executable for tests
+    add_executable(ToneCascadeTests
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/Tests/core/audio/AudioPassthroughTest.cpp
+        # Other test files...
+    )
+
+    # Link test executable to core library + JUCE test framework
+    target_link_libraries(ToneCascadeTests PRIVATE
+        ToneCascade
+        juce_unit_test
+    )
+
+    # Include paths
+    target_include_directories(ToneCascadeTests PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/Source"
+    )
+
+    # Register with CTest
     enable_testing()
-    add_subdirectory(Source/Tests)
+    add_test(NAME ToneCascadeTests COMMAND ToneCascadeTests)
 endif()
 
 # Optional but helpful for IDE organization
