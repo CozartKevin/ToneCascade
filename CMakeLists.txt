@@ -1,6 +1,19 @@
 ﻿cmake_minimum_required(VERSION 3.22)  # JUCE requires CMake 3.15+
 project(ToneCascade LANGUAGES C CXX)    # C++ project
 
+
+set(TC_CORE_SOURCES
+    Source/Core/AudioEngine.cpp
+    Source/CORE/PluginProcessor.cpp
+)
+
+set(TC_UI_SOURCES
+    Source/UI/CustomLook.cpp
+    Source/UI/PluginEditor.cpp
+    Source/UI/Visualizer.cpp
+)
+
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -18,42 +31,38 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(JUCE)
 
-# Make JUCE modules available globally
-include_directories(${JUCE_SOURCE_DIR}/modules)
 
 # =============================================================================
-# 2. Core Static Library (All testable DSP code)
+# 2. Library setup 
 # =============================================================================
-add_library(ToneCascadeCore STATIC
-    Source/Core/AudioEngine.cpp
-    Source/Core/Parameters.h
-    Source/Core/PluginProcessor.cpp
+
+# Header library (Allows access to JuceIncludes.h from Source folder)
+add_library(ToneCascadeHeaders INTERFACE)
+ 
+ target_include_directories(ToneCascadeHeaders
+    INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/Common
+
+ )
+
+ # Core library (all DSP / testable code for CORE functions)
+add_library(ToneCascadeCore STATIC 
+    ${TC_CORE_SOURCES}
+    Source/Core/Parameters.h # headers for IDE visibility
 )
-
-
-
-add_library(ToneCascadeUI STATIC
-    Source/UI/CustomLook.cpp
-    Source/UI/PluginEditor.cpp
-    Source/UI/Visualizer.cpp
-)
-
 
 target_include_directories(ToneCascadeCore PUBLIC
-    "${CMAKE_CURRENT_SOURCE_DIR}/Source"
+    ToneCascadeHeaders    
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/Core"
-    "${JUCE_SOURCE_DIR}/modules" 
 )
+
+# UI library (all interface code)
+add_library(ToneCascadeUI STATIC ${TC_UI_SOURCES})
 
 target_include_directories(ToneCascadeUI PUBLIC
-    "${CMAKE_CURRENT_SOURCE_DIR}/Source"
+    ToneCascadeHeaders
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/UI"
 )
-
-
-# Organize files in IDEs (Visual Studio/Xcode/CLion)
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})
-
 
 
 # Core compiler settings (applied to both plugin and tests)
@@ -98,8 +107,24 @@ juce_add_plugin(ToneCascade
 )
 
 
+target_link_libraries(ToneCascadeCore
+    PUBLIC ToneCascadeHeaders
+    PRIVATE juce_dsp
+)
+
+target_link_libraries(ToneCascadeUI
+    PUBLIC ToneCascadeHeaders
+    PRIVATE 
+        juce_gui_basics
+        juce_graphics
+        juce_opengl
+)
+
+
+
 
 target_link_libraries(ToneCascade PRIVATE
+    ToneCascadeHeaders
     ToneCascadeCore
     ToneCascadeUI
     juce_audio_utils        # Audio utilities for standalone build
@@ -114,40 +139,28 @@ target_link_libraries(ToneCascade PRIVATE
 # -----------------------------------------------------------------------------
 target_sources(ToneCascade PRIVATE
 
-    # Core Audio/DSP
-    Source/Core/AudioEngine.cpp
+    #CORE .cpp files (centralized)
+    ${TC_CORE_SOURCES}
+
+    #UI .cpp files (centralized)
+    ${TC_UI_SOURCES}
+
+    # Core headers (for IDE project organization)
     Source/Core/AudioEngine.h
     Source/Core/Parameters.h
-    Source/Core/PluginProcessor.cpp
     Source/Core/PluginProcessor.h
 
+    # UI headers (for IDE project organization)
+    Source/UI/CustomLook.h
+    Source/UI/PluginEditor.h
+    Source/UI/Visualizer.h
+   
     # Standalone Entry Point (Optional)
     Source/Core/Standalone/Main.cpp
 
-    # UI
-    Source/UI/CustomLook.cpp
-    Source/UI/CustomLook.h
-    Source/UI/PluginEditor.cpp
-    Source/UI/PluginEditor.h
-    Source/UI/Visualizer.cpp
-    Source/UI/Visualizer.h
-   
  )
 
- # Critical additional steps:
-target_include_directories(ToneCascade PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/Source"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Source/Core"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Source/UI"
-)
-
-# For shared headers
-target_include_directories(ToneCascade PUBLIC
-    "${CMAKE_CURRENT_SOURCE_DIR}/Source"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Source/Core"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Source/UI"
-    "${JUCE_SOURCE_DIR}/modules"
-)
+ 
 
 # =============================================================================
 # 4. Testing (Only built if enabled)
@@ -167,7 +180,9 @@ if(BUILD_TESTING)
 
     # Link against core library + test framework
     target_link_libraries(ToneCascadeTests PRIVATE
+        ToneCascadeHeaders
         ToneCascadeCore  # Reusable core
+        ToneCascadeUI       
         juce_unit_test   # No namespace with FetchContent
     )
 

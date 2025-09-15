@@ -53,3 +53,7 @@ Shaders/*.spv
 /.vs/Tone-Cascade/FileContentIndex
 /.vs/Tone-Cascade/v17
 docs/Given to DeepSeek for analysis.txt
+.vs/cmake.db
+.vs/slnx.sqlite-journal
+.vs/cmake.db
+.vs/slnx.sqlite
