@@ -1,7 +1,7 @@
 # ToneCascade  
 *Real-Time Audio Visualizer (Early Development)*  
 
-🚧 **Project Status**: Active development  
+🚧 **Project Status**: Exploratory Prototype 
 📅 **Last Updated**: 7/5/2025
 
 ## Goals  
